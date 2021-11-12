@@ -36,7 +36,7 @@ class EmailMessage(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, *kwargs)
         if self.status == 'p':  # if message is pending we schedule the sending
-            send_simple_message.delay(self)
+            send_simple_message.delay(self.id)
 
     class Meta:
         verbose_name = 'E-mail Message'

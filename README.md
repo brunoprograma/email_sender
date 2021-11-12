@@ -5,5 +5,6 @@ Usage:
 
 > sudo docker-compose up --build
 
+> http://localhost:8000
 > User: testuser
 > Pass: testpass

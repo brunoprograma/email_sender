@@ -2,7 +2,6 @@ import requests
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from email_sender.celery import app
-from .models import EmailMessage
 
 logger = get_task_logger(__name__)
 
@@ -13,6 +12,7 @@ def send_simple_message(emailmessage_id):
     Receives a instance from sender.models.EmailMessage and sends the message
     """
     logger.info('Creating new task...')
+    from .models import EmailMessage
 
     try:
         emailmessage = EmailMessage.objects.get(id=emailmessage_id)
@@ -26,6 +26,8 @@ def send_simple_message(emailmessage_id):
     to = ', '.join(emailmessage.recipients.values_list('email', flat=True))
     url = settings.MAIL_URL
     secret = settings.MAIL_SECRET
+
+    logger.info(f'Sending message to {to} through API {url}')
 
     try:
         response = requests.post(
@@ -44,7 +46,7 @@ def send_simple_message(emailmessage_id):
             emailmessage.status = 's'
             emailmessage.save()
         else:
-            logger.error(f'Error at sending e-mail: {emailmessage} ({response.status_code})')
+            logger.error(f'Error at sending e-mail: {emailmessage} ({response.status_code}: {response.content})')
             emailmessage.status = 'f'
             emailmessage.save()
 

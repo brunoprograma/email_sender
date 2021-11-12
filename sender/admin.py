@@ -12,7 +12,12 @@ from .forms import EmailMessageForm
 @admin.register(EmailMessage)
 class EmailMessageAdmin(admin.ModelAdmin):
     def re_send_messages(self, request, queryset):
-        rows_updated = queryset.exclude(status='p').update(status='p')
+        rows_updated = 0
+        for message in queryset.exclude(status='p'):
+            message.status = 'p'
+            message.save()  # needs to call save method
+            rows_updated += 1
+
         if rows_updated == 1:
             message = 'Your message will be re-sended'
         else:

@@ -164,3 +164,4 @@ CELERY_RESULT_SERIALIZER = 'json'
 # Mail API settings
 MAIL_URL = os.environ.get('MAIL_URL')
 MAIL_SECRET = os.environ.get('MAIL_SECRET')
+EMAIL_HOST_USER = os.environ.get('MAIL_HOST_USER')

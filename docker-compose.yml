@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  email_sender:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "python3 manage.py migrate &&
+             python3 manage.py collectstatic --noinput &&
+             python3 manage.py initadmin &&
+             python3 manage.py runserver 0.0.0.0:8000"
+
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - db
+
+  db:
+    image: postgres:10-alpine
+    env_file:
+      - ./.env.dev
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  redis:
+    image: redis:alpine
+  celery:
+    restart: always
+    build:
+      context: .
+    command: celery -A email_sender worker -l info
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - db
+      - redis
+      - email_sender
+volumes:
+  pgdata:
